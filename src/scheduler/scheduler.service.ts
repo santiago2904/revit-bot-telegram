@@ -15,7 +15,7 @@ export class SchedulerService {
   ) {}
 
   /** Buenos días + ¿llegaste temprano? — 7:30 AM (solo a Bibiana) */
-  @Cron('30 7 * * 1-5', { name: 'morning-checkin' })
+  @Cron('30 7 * * 1-5', { name: 'morning-checkin', timeZone: 'America/Bogota' })
   async morningCheckin() {
     this.logger.log('[morning] Enviando mensaje de buenos días');
     const BIBIANA_CHAT_ID = 1861897985;
@@ -28,25 +28,25 @@ export class SchedulerService {
   }
 
   /** Recordatorio 10:00 AM */
-  @Cron('0 10 * * *', { name: 'reminder-10am' })
+  @Cron('0 10 * * *', { name: 'reminder-10am', timeZone: 'America/Bogota' })
   async reminder10am() {
     await this.sendReminders('morning-reminder');
   }
 
   /** Recordatorio 1:00 PM */
-  @Cron('0 13 * * *', { name: 'reminder-1pm' })
+  @Cron('0 13 * * *', { name: 'reminder-1pm', timeZone: 'America/Bogota' })
   async reminder1pm() {
     await this.sendReminders('afternoon');
   }
 
   /** Recordatorio 4:00 PM */
-  @Cron('0 16 * * *', { name: 'reminder-4pm' })
+  @Cron('0 16 * * *', { name: 'reminder-4pm', timeZone: 'America/Bogota' })
   async reminder4pm() {
     await this.sendReminders('late-afternoon');
   }
 
   /** Recordatorio 7:00 PM */
-  @Cron('0 19 * * *', { name: 'reminder-7pm' })
+  @Cron('0 19 * * *', { name: 'reminder-7pm', timeZone: 'America/Bogota' })
   async reminder7pm() {
     await this.sendReminders('evening');
   }
