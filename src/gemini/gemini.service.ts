@@ -12,25 +12,31 @@ const FALLBACK_MORNING = [
   '🌞 Ey Bibi, ¿ya estás en modo productivo o todavía en modo sábana?',
 ];
 
+const FALLBACK_MORNING_REMINDER = [
+  '⚡ Bibi, ya son las 10 y ESTAMOS EN SEMANA SANTA. Ese Revit se tiene que terminar HOY, cero excusas jaja',
+  '🚨 10 AM - Se está acabando Semana Santa y ese curso sigue pendiente. MODO URGENTE activado jaja',
+  '💥 Buenos días, pollito. Ya estamos en Semana Santa y perdiendo tiempo valioso, a camellar YA jaja',
+];
+
 const FALLBACK_AFTERNOON = [
-  '📚 ¿Ya avanzaste en tu curso hoy? ¡Aún estás a tiempo!',
-  '💪 La tarde es perfecta para estudiar un poco. ¡Tú puedes!',
-  '🎯 Un pequeño avance hoy vale más que mil planes mañana.',
-  '📖 ¿Y si le dedicas unos minutos a tu curso? ¡Cada minuto cuenta!',
-  '🚀 No dejes para mañana lo que puedes aprender hoy.',
-  '⚡ El conocimiento es poder. ¡Dale un ratito a tu curso!',
+  '🔥 1 PM - Media Semana Santa y todavía con ese Revit pendiente. NO PUEDE SER, póngase las pilas jaja',
+  '⚠️ Bibi, recordatorio CRÍTICO: Estamos EN Semana Santa, cada minuto cuenta. Revit AHORA jaja',
+  '💪 Ya es tarde y ese curso sigue esperando. Se te va la Semana Santa sin terminar, hágale pues jaja',
+];
+
+const FALLBACK_LATE_AFTERNOON = [
+  '🚨 4 PM - ALERTA MÁXIMA: Semana Santa se está yendo y ese Revit sigue ahí. Último chance del día jaja',
+  '💥 Son las 4 y ya casi perdemos otro día de Semana Santa. MODO DESESPERADO, a camellar jaja',
+  '⏰ 4 PM, se acaba el día y la Semana Santa. Si no avanzás ahora, perdiste el día completo jaja',
 ];
 
 const FALLBACK_EVENING = [
-  '🌙 Última llamada del día. ¿Lograste avanzar en tu curso?',
-  '🌟 Antes de descansar, ¿le dedicaste tiempo a tu curso hoy?',
-  '🔔 Recuerda: la consistencia es clave. ¿Avanzaste hoy?',
-  '🎓 Un día sin aprender es un día perdido. ¡Aún tienes chance!',
-  '💡 Cierra el día con broche de oro: avanza en tu curso.',
-  '🌙 No te vayas a dormir sin haber dado un paso más en tu curso.',
+  '🔴 7 PM - ÚLTIMA LLAMADA. Otro día perdido de Semana Santa por ese Revit. Dale YA que mañana es lo mismo jaja',
+  '⚠️ EMERGENCIA: Son las 7 PM, se acabó el día y Semana Santa se nos va. Revit AHORA o nada jaja',
+  '💀 7 PM - Se fue otro día. ¿Querés que Semana Santa se acabe con ese curso pendiente? Dale pues jaja',
 ];
 
-type TimeOfDay = 'morning' | 'afternoon' | 'evening';
+type TimeOfDay = 'morning' | 'morning-reminder' | 'afternoon' | 'late-afternoon' | 'evening';
 
 @Injectable()
 export class GeminiService implements OnModuleInit {
@@ -67,24 +73,53 @@ export class GeminiService implements OnModuleInit {
       return this.generateMorningMessage();
     }
 
-    const timeLabel =
-      timeOfDay === 'afternoon' ? 'la tarde' : 'la noche';
+    // Definir contexto según la hora del día
+    let timeLabel = '';
+    let intensity = '';
+    let timeContext = '';
+
+    switch (timeOfDay) {
+      case 'morning-reminder':
+        timeLabel = 'media mañana (10 AM)';
+        intensity = 'MUY directo y urgente';
+        timeContext = 'ESTAMOS EN SEMANA SANTA y ese curso todavía no está terminado. Se está perdiendo tiempo valioso de vacaciones por ese Revit pendiente.';
+        break;
+      case 'afternoon':
+        timeLabel = 'después del almuerzo (1 PM)';
+        intensity = 'CRÍTICO y presionante al máximo';
+        timeContext = 'Ya es tarde, estamos EN SEMANA SANTA y el curso sigue pendiente. Cada hora que pasa es tiempo de Semana Santa desperdiciado.';
+        break;
+      case 'late-afternoon':
+        timeLabel = 'media tarde (4 PM)';
+        intensity = 'DESESPERADO y ultra urgente';
+        timeContext = 'El día casi se acabó, estamos EN PLENA SEMANA SANTA y ese Revit sigue ahí. Esto es CRÍTICO, es el último chance del día.';
+        break;
+      case 'evening':
+        timeLabel = 'la noche (7 PM)';
+        intensity = 'EMERGENCIA TOTAL - Presión absoluta';
+        timeContext = 'ÚLTIMA OPORTUNIDAD DEL DÍA. Estamos EN SEMANA SANTA y se está yendo otro día sin terminar. Si no avanza YA, perdió todo el día.';
+        break;
+    }
 
       const prompt = [
-        `Actúa como un paisa seguro, relajado y molestón. Genera un mensaje corto para recordarle a Bibiana, pudes decirle bibi que avance en su curso de Autodesk Revit.`,
-        `El contexto: Ella es muy procrastinadora y necesitas que termine eso para que esté 100% libre la otra semana (Semana Santa). Tienen pendiente armar un Lego en tu casa y hacer maratón de películas, y no le vas a aceptar excusas de que "tiene que estudiar".`,
-        `El tono: Puro "banter" (recocha) y coqueteo disimulado. Debe sonar como un "comandante militar" estricto pero divertido y retador. Presiónala con cariño. Usa expresiones naturales colombianas como "hágale pues", "ojo pues", "póngase las pilas", "modo juicio", "cero excusas" y siempre incluye algún "jaja" para suavizar el golpe.`,
-        `Ejemplos del estilo que busco:`,
-        `- "Bibi, mucho chisme y poco Revit, póngase las pilas pues que ese Lego no se va a armar solo en Semana Santa jaja."`,
-        `- "Reportándose a estudiar, pollito de colores. Ojo pues que la necesito libre la otra semana pa' las películas y no le valgo excusas jaja."`,
+        `Actúa como un paisa SÚPER molestón, presionante y directo. Genera un mensaje MUY presionante para Bibiana (puedes decirle "Bibi") sobre su curso de Autodesk Revit.`,
+        `CONTEXTO CRÍTICO: YA ESTAMOS EN SEMANA SANTA y ella TODAVÍA no ha terminado ese curso. Se está perdiendo días de vacaciones por esa procrastinación. ${timeContext} Esto es GRAVE.`,
+        `El tono: ${intensity}. Más allá del "banter" normal, esto es PRESIÓN REAL pero con cariño. Como un comandante EN CRISIS pero que la quiere. Usa MAYÚSCULAS ocasionalmente para énfasis. Expresiones como: "YA estamos en Semana Santa", "se te va el tiempo", "perdiendo días", "modo emergencia", "AHORA o nunca", "última oportunidad", "se acabó la paciencia" y siempre "jaja" al final para no sonar agresivo.`,
+        `IMPORTANTE: Ya NO es "para la otra semana", YA ESTÁN EN SEMANA SANTA. El enfoque es: "te estás perdiendo Semana Santa", "cada minuto cuenta", "se te va el tiempo de vacaciones", "ya perdimos días por ese curso".`,
+        `Ejemplos del estilo ULTRA PRESIONANTE:`,
+        `- "Bibi, ya son las 10 AM y ESTAMOS EN SEMANA SANTA. Ese Revit se tiene que acabar HOY, se nos está yendo el tiempo jaja."`,
+        `- "ALERTA ROJA: Ya es 1 PM de Semana Santa y ese curso sigue pendiente. No puede ser, a camellar YA que se va el día jaja."`,
+        `- "Bibi, son las 7 PM, se fue OTRO día de Semana Santa por ese Revit. ¿Querés perder toda la semana? Dale pues jaja."`,
         `Es ${timeLabel}. El mensaje debe:`,
-        `- Ser diferente cada vez (creativo, variado y directo al grano)`,
-        `- Usar 1 o 2 emojis relevantes máximo`,
-        `- Tener máximo 2 oraciones cortas`,
-        `- Ser una presión divertida y motivadora, cero agresiva`,
-        `- No usar comillas, saludos formales ni formato markdown`,
-        `Solo responde con el mensaje de texto exacto, nada más.
-        nada en tono sexual como por ejemplo este emoji 😈  `
+        `- Ser EXTREMADAMENTE presionante (pero sin ser grosero)`,
+        `- Enfatizar que YA están EN Semana Santa perdiendo tiempo`,
+        `- Ser diferente cada vez, creativo y MUY directo`,
+        `- Usar 1-2 emojis de urgencia (🚨, 🔥, ⚠️, 💥, ⏰, 🔴, 💀)`,
+        `- Máximo 2 oraciones cortas pero MUY contundentes`,
+        `- Usar MAYÚSCULAS estratégicamente para énfasis`,
+        `- Terminar con "jaja" para suavizar`,
+        `- No usar comillas ni formato markdown`,
+        `Solo responde con el mensaje de texto exacto, nada más.`
       ].join('\n');
   
 
@@ -188,7 +223,7 @@ export class GeminiService implements OnModuleInit {
       `El objetivo: Preguntarle si ya llegó temprano a la oficina hoy. Es una pregunta cariñosa pero con recocha.`,
       `El tono: Puro "banter" (recocha) y coqueteo disimulado. Como un novio molestón que la quiere ver juiciosa. Usa expresiones colombianas naturales.`,
       `Ejemplos del estilo:`,
-      `- "Buenos días pollita ☀️ ¿Ya llegó la más juiciosa a la oficina o todavía está peleando con la almohada? jaja"`,
+      `- "Buenos días ☀️ ¿Ya llegó la más juiciosa a la oficina o todavía está peleando con la almohada? jaja"`,
       `- "Ey Bibi, reporte de llegada temprana a la ofici, ¿o qué? Ojo pues que la estoy vigilando jaja ☕"`,
       `El mensaje debe:`,
       `- Ser diferente cada vez (creativo, variado)`,
@@ -229,7 +264,9 @@ export class GeminiService implements OnModuleInit {
   private getFallback(timeOfDay: TimeOfDay): string {
     const pools: Record<TimeOfDay, string[]> = {
       morning: FALLBACK_MORNING,
+      'morning-reminder': FALLBACK_MORNING_REMINDER,
       afternoon: FALLBACK_AFTERNOON,
+      'late-afternoon': FALLBACK_LATE_AFTERNOON,
       evening: FALLBACK_EVENING,
     };
     const pool = pools[timeOfDay];

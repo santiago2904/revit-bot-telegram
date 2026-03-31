@@ -27,15 +27,27 @@ export class SchedulerService {
     }
   }
 
-  /** Recordatorio de la tarde — 2:00 PM */
-  @Cron('0 14 * * *', { name: 'reminder-afternoon' })
-  async afternoonReminder() {
+  /** Recordatorio 10:00 AM */
+  @Cron('0 10 * * *', { name: 'reminder-10am' })
+  async reminder10am() {
+    await this.sendReminders('morning-reminder');
+  }
+
+  /** Recordatorio 1:00 PM */
+  @Cron('0 13 * * *', { name: 'reminder-1pm' })
+  async reminder1pm() {
     await this.sendReminders('afternoon');
   }
 
-  /** Recordatorio nocturno — 8:00 PM */
-  @Cron('0 20 * * *', { name: 'reminder-evening' })
-  async eveningReminder() {
+  /** Recordatorio 4:00 PM */
+  @Cron('0 16 * * *', { name: 'reminder-4pm' })
+  async reminder4pm() {
+    await this.sendReminders('late-afternoon');
+  }
+
+  /** Recordatorio 7:00 PM */
+  @Cron('0 19 * * *', { name: 'reminder-7pm' })
+  async reminder7pm() {
     await this.sendReminders('evening');
   }
 
@@ -43,7 +55,7 @@ export class SchedulerService {
    * Envía recordatorio con mensaje generado por Gemini
    * solo a usuarios que NO hayan registrado avance hoy.
    */
-  private async sendReminders(timeOfDay: 'afternoon' | 'evening') {
+  private async sendReminders(timeOfDay: 'morning-reminder' | 'afternoon' | 'late-afternoon' | 'evening') {
     const pending = await this.userService.getUsersPendingToday();
     this.logger.log(
       `[${timeOfDay}] Enviando recordatorio a ${pending.length} usuario(s) pendientes`,
