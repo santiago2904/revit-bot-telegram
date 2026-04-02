@@ -22,7 +22,7 @@ export class TrackedUser {
   @Column({ type: 'boolean', default: true })
   active: boolean;
 
-  /** IDs de los últimos 5 stickers enviados (para evitar repetición) */
+  /** IDs de TODOS los stickers enviados (para evitar repetición completa) */
   @Column({ type: 'text', nullable: true })
   lastStickerIds: string | null;
 

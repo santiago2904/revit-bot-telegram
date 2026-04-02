@@ -565,40 +565,51 @@ export class BotService implements OnModuleInit {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
-  /** Selecciona un sticker/media que NO esté en los últimos 5 enviados */
+  /** Selecciona un sticker/media que NO haya sido enviado antes */
   private selectNonRepeatingSticker(
     options: Array<{ type: 'file' | 'sticker'; value: string }>,
-    lastStickers: string[],
+    usedStickers: string[],
   ): { type: 'file' | 'sticker'; value: string } {
-    // Filtrar opciones que no estén en el historial
-    const available = options.filter(
-      opt => !lastStickers.includes(opt.value)
+    // Filtrar stickers que NO han sido usados
+    const availableStickers = options.filter(
+      opt => opt.type === 'sticker' && !usedStickers.includes(opt.value)
     );
     
-    // Si hay opciones disponibles, usar una de ellas
+    // Incluir archivos (siempre disponibles)
+    const files = options.filter(opt => opt.type === 'file');
+    const available = [...availableStickers, ...files];
+    
+    // Si hay stickers nuevos o archivos disponibles
     if (available.length > 0) {
       return this.randomItem(available);
     }
     
-    // Si todos fueron usados, resetear y elegir cualquiera
-    return this.randomItem(options);
+    // Si todos los stickers fueron usados, resetear y empezar de nuevo
+    this.logger.log('Todos los stickers fueron usados, reseteando historial');
+    const freshStickers = options.filter(opt => opt.type === 'sticker');
+    return this.randomItem(freshStickers.length > 0 ? freshStickers : options);
   }
 
-  /** Actualiza el historial de stickers enviados (últimos 5) */
+  /** Actualiza el historial de stickers enviados (guarda TODOS) */
   private async updateStickerHistory(
     chatId: number,
     stickerId: string,
     currentHistory: string[],
   ): Promise<void> {
     try {
-      // Agregar el nuevo sticker al inicio
-      const updated = [stickerId, ...currentHistory];
+      // Si el historial ya tiene todos los stickers disponibles, resetear
+      if (currentHistory.length >= REMINDER_STICKERS.length) {
+        // Resetear: solo guardar el nuevo
+        await this.userService.updateStickerHistory(chatId, stickerId);
+        this.logger.log(`Reseteado historial de stickers para usuario ${chatId}`);
+        return;
+      }
       
-      // Mantener solo los últimos 5
-      const last5 = updated.slice(0, 5);
-      
-      // Guardar en la BD como string separado por comas
-      await this.userService.updateStickerHistory(chatId, last5.join(','));
+      // Agregar el nuevo sticker si no está ya
+      if (!currentHistory.includes(stickerId)) {
+        const updated = [...currentHistory, stickerId];
+        await this.userService.updateStickerHistory(chatId, updated.join(','));
+      }
     } catch (err) {
       this.logger.warn(`No se pudo actualizar historial de stickers: ${err}`);
     }
