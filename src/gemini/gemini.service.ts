@@ -13,27 +13,27 @@ const FALLBACK_MORNING = [
 ];
 
 const FALLBACK_MORNING_REMINDER = [
-  '⚡ Bibi, ya son las 10 y ESTAMOS EN SEMANA SANTA. Ese Revit se tiene que terminar HOY, cero excusas jaja',
-  '🚨 10 AM - Se está acabando Semana Santa y ese curso sigue pendiente. MODO URGENTE activado jaja',
-  '💥 Buenos días, pollito. Ya estamos en Semana Santa y perdiendo tiempo valioso, a camellar YA jaja',
+  '🚨 ALERTA ROJA Bibi: Ya son las 10 AM de Semana Santa y ese Revit sigue pendiente. NO PUEDE SER, a camellar YA jaja',
+  '⚠️ CÓDIGO ROJO: 10 AM y PERDIENDO Semana Santa por ese curso. BASTA YA de procrastinar, dale ahora jaja',
+  '💥 Bibi EMERGENCIA: Media mañana de Semana Santa y NADA de avance. Se te va TODO el tiempo, hágale YA jaja',
 ];
 
 const FALLBACK_AFTERNOON = [
-  '🔥 1 PM - Media Semana Santa y todavía con ese Revit pendiente. NO PUEDE SER, póngase las pilas jaja',
-  '⚠️ Bibi, recordatorio CRÍTICO: Estamos EN Semana Santa, cada minuto cuenta. Revit AHORA jaja',
-  '💪 Ya es tarde y ese curso sigue esperando. Se te va la Semana Santa sin terminar, hágale pues jaja',
+  '🔴 CRISIS TOTAL Bibi: 1 PM de Semana Santa y ese Revit sigue ahí. INACEPTABLE, póngase las pilas AHORA jaja',
+  '⚠️ EMERGENCIA: Ya es 1 PM y DESPERDICIANDO Semana Santa. Se acabó la paciencia, Revit AHORA jaja',
+  '💀 Bibi, recordatorio CRÍTICO: Ya es tarde y perdiendo vacaciones por ese curso. BASTA YA, hágale pues jaja',
 ];
 
 const FALLBACK_LATE_AFTERNOON = [
-  '🚨 4 PM - ALERTA MÁXIMA: Semana Santa se está yendo y ese Revit sigue ahí. Último chance del día jaja',
-  '💥 Son las 4 y ya casi perdemos otro día de Semana Santa. MODO DESESPERADO, a camellar jaja',
-  '⏰ 4 PM, se acaba el día y la Semana Santa. Si no avanzás ahora, perdiste el día completo jaja',
+  '🚨 ÚLTIMO AVISO: 4 PM, el día casi se acabó y OTRO día de Semana Santa perdido. AHORA O NUNCA jaja',
+  '💥 CÓDIGO ROJO: Son las 4 PM y ese Revit sigue pendiente. Si no avanzás AHORA, perdiste TODO el día jaja',
+  '⏰ CRISIS FINAL: 4 PM de Semana Santa yéndose. Última oportunidad del día, DALE YA jaja',
 ];
 
 const FALLBACK_EVENING = [
-  '🔴 7 PM - ÚLTIMA LLAMADA. Otro día perdido de Semana Santa por ese Revit. Dale YA que mañana es lo mismo jaja',
-  '⚠️ EMERGENCIA: Son las 7 PM, se acabó el día y Semana Santa se nos va. Revit AHORA o nada jaja',
-  '💀 7 PM - Se fue otro día. ¿Querés que Semana Santa se acabe con ese curso pendiente? Dale pues jaja',
+  '🔴 EMERGENCIA ABSOLUTA: 7 PM, se fue OTRO día COMPLETO de Semana Santa por ese Revit. DALE YA jaja',
+  '⚠️ DEFCON 1: Son las 7 PM, PERDISTE el día entero. ¿Querés que Semana Santa se acabe con ese curso pendiente? jaja',
+  '💀 ÚLTIMA LLAMADA: 7 PM, día perdido. Si NO avanzás ahora, mañana es lo mismo. BASTA YA jaja',
 ];
 
 type TimeOfDay = 'morning' | 'morning-reminder' | 'afternoon' | 'late-afternoon' | 'evening';
@@ -81,43 +81,43 @@ export class GeminiService implements OnModuleInit {
     switch (timeOfDay) {
       case 'morning-reminder':
         timeLabel = 'media mañana (10 AM)';
-        intensity = 'MUY directo y urgente';
-        timeContext = 'ESTAMOS EN SEMANA SANTA y ese curso todavía no está terminado. Se está perdiendo tiempo valioso de vacaciones por ese Revit pendiente.';
+        intensity = 'MÁXIMA PRESIÓN - tono de comandante en crisis';
+        timeContext = 'ALERTA ROJA: ESTAMOS EN SEMANA SANTA y ese curso todavía no está terminado. Cada minuto que pasa es tiempo de vacaciones PERDIDO. Esto es INACEPTABLE.';
         break;
       case 'afternoon':
         timeLabel = 'después del almuerzo (1 PM)';
-        intensity = 'CRÍTICO y presionante al máximo';
-        timeContext = 'Ya es tarde, estamos EN SEMANA SANTA y el curso sigue pendiente. Cada hora que pasa es tiempo de Semana Santa desperdiciado.';
+        intensity = 'NIVEL DE EMERGENCIA - presión absoluta y desesperada';
+        timeContext = 'CRISIS TOTAL: Ya es tarde, estamos EN PLENA SEMANA SANTA y el curso sigue pendiente. Se está DESPERDICIANDO Semana Santa por esa procrastinación. BASTA YA.';
         break;
       case 'late-afternoon':
         timeLabel = 'media tarde (4 PM)';
-        intensity = 'DESESPERADO y ultra urgente';
-        timeContext = 'El día casi se acabó, estamos EN PLENA SEMANA SANTA y ese Revit sigue ahí. Esto es CRÍTICO, es el último chance del día.';
+        intensity = 'CÓDIGO ROJO - última oportunidad del día, tono DESESPERADO';
+        timeContext = 'ÚLTIMO AVISO: El día casi terminó, estamos EN SEMANA SANTA y ese Revit sigue ahí. Si no avanza AHORA, perdió TODO el día. Esto es CRÍTICO.';
         break;
       case 'evening':
         timeLabel = 'la noche (7 PM)';
-        intensity = 'EMERGENCIA TOTAL - Presión absoluta';
-        timeContext = 'ÚLTIMA OPORTUNIDAD DEL DÍA. Estamos EN SEMANA SANTA y se está yendo otro día sin terminar. Si no avanza YA, perdió todo el día.';
+        intensity = 'DEFCON 1 - Presión MÁXIMA ABSOLUTA, situación desesperada';
+        timeContext = 'EMERGENCIA FINAL: ÚLTIMO MOMENTO DEL DÍA. Estamos EN SEMANA SANTA y se va OTRO día completo sin terminar. Si no actúa YA, perdió 24 horas de vacaciones.';
         break;
     }
 
       const prompt = [
-        `Actúa como un paisa SÚPER molestón, presionante y directo. Genera un mensaje MUY presionante para Bibiana (puedes decirle "Bibi") sobre su curso de Autodesk Revit.`,
-        `CONTEXTO CRÍTICO: YA ESTAMOS EN SEMANA SANTA y ella TODAVÍA no ha terminado ese curso. Se está perdiendo días de vacaciones por esa procrastinación. ${timeContext} Esto es GRAVE.`,
-        `El tono: ${intensity}. Más allá del "banter" normal, esto es PRESIÓN REAL pero con cariño. Como un comandante EN CRISIS pero que la quiere. Usa MAYÚSCULAS ocasionalmente para énfasis. Expresiones como: "YA estamos en Semana Santa", "se te va el tiempo", "perdiendo días", "modo emergencia", "AHORA o nunca", "última oportunidad", "se acabó la paciencia" y siempre "jaja" al final para no sonar agresivo.`,
-        `IMPORTANTE: Ya NO es "para la otra semana", YA ESTÁN EN SEMANA SANTA. El enfoque es: "te estás perdiendo Semana Santa", "cada minuto cuenta", "se te va el tiempo de vacaciones", "ya perdimos días por ese curso".`,
-        `Ejemplos del estilo ULTRA PRESIONANTE:`,
-        `- "Bibi, ya son las 10 AM y ESTAMOS EN SEMANA SANTA. Ese Revit se tiene que acabar HOY, se nos está yendo el tiempo jaja."`,
-        `- "ALERTA ROJA: Ya es 1 PM de Semana Santa y ese curso sigue pendiente. No puede ser, a camellar YA que se va el día jaja."`,
-        `- "Bibi, son las 7 PM, se fue OTRO día de Semana Santa por ese Revit. ¿Querés perder toda la semana? Dale pues jaja."`,
+        `Actúa como un paisa EXTREMADAMENTE molestón y presionante. Genera un mensaje de MÁXIMA PRESIÓN para Bibiana (decile "Bibi") sobre su curso de Autodesk Revit.`,
+        `CONTEXTO CRÍTICO ABSOLUTO: YA ESTAMOS EN SEMANA SANTA y ella TODAVÍA no ha terminado ese curso. Se está PERDIENDO días enteros de vacaciones por esa procrastinación INACEPTABLE. ${timeContext} Esto es una EMERGENCIA.`,
+        `El tono: ${intensity}. NO es banter, es PRESIÓN REAL. Como un comandante militar EN PLENA CRISIS pero que la quiere. Usa MAYÚSCULAS frecuentemente. Expresiones extremas: "BASTA YA", "NO PUEDE SER", "INACEPTABLE", "EMERGENCIA", "CÓDIGO ROJO", "ALERTA MÁXIMA", "última oportunidad", "se acabó la paciencia", "perdiendo TODO", "CRISIS TOTAL" y siempre "jaja" al final para que no sea agresivo.`,
+        `IMPORTANTE: El enfoque debe ser: "se te está YENDO Semana Santa completa", "PERDISTE otro día", "cada segundo cuenta", "vacaciones DESPERDICIADAS", "ya NO hay tiempo", "AHORA O NUNCA".`,
+        `Ejemplos del estilo ULTRA DURO:`,
+        `- "Bibi, ALERTA ROJA: son las 10 AM de Semana Santa y ese Revit sigue pendiente. NO PUEDE SER, a camellar YA jaja."`,
+        `- "CÓDIGO ROJO Bibi: 1 PM de Semana Santa y NADA de avance. Se te va TODO el tiempo de vacaciones, BASTA YA jaja."`,
+        `- "EMERGENCIA FINAL: 7 PM, se fue OTRO día COMPLETO de Semana Santa. ¿Querés perder toda la semana? Dale YA jaja."`,
         `Es ${timeLabel}. El mensaje debe:`,
-        `- Ser EXTREMADAMENTE presionante (pero sin ser grosero)`,
-        `- Enfatizar que YA están EN Semana Santa perdiendo tiempo`,
-        `- Ser diferente cada vez, creativo y MUY directo`,
-        `- Usar 1-2 emojis de urgencia (🚨, 🔥, ⚠️, 💥, ⏰, 🔴, 💀)`,
-        `- Máximo 2 oraciones cortas pero MUY contundentes`,
-        `- Usar MAYÚSCULAS estratégicamente para énfasis`,
-        `- Terminar con "jaja" para suavizar`,
+        `- Ser EXTREMADAMENTE presionante y casi agresivo (pero con "jaja" al final)`,
+        `- Enfatizar que se está PERDIENDO Semana Santa COMPLETA`,
+        `- Ser contundente, directo, SIN sutilezas`,
+        `- Usar 2-3 emojis de máxima urgencia (🚨, 🔴, ⚠️, 💥, ⏰, 💀, 🔥)`,
+        `- Máximo 2 oraciones MUY cortas y DEVASTADORAS`,
+        `- MAYÚSCULAS en palabras clave para énfasis`,
+        `- Terminar SIEMPRE con "jaja" para suavizar`,
         `- No usar comillas ni formato markdown`,
         `Solo responde con el mensaje de texto exacto, nada más.`
       ].join('\n');

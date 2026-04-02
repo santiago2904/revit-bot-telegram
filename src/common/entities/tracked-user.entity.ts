@@ -22,6 +22,10 @@ export class TrackedUser {
   @Column({ type: 'boolean', default: true })
   active: boolean;
 
+  /** IDs de los últimos 5 stickers enviados (para evitar repetición) */
+  @Column({ type: 'text', nullable: true })
+  lastStickerIds: string | null;
+
   @OneToMany(() => DailyProgress, (dp) => dp.user, { cascade: true })
   dailyProgress: DailyProgress[];
 

@@ -55,6 +55,16 @@ export class UserService {
     return this.userRepo.findOneBy({ id: chatId });
   }
 
+  /** Alias para getUserById (para consistencia) */
+  async getUserById(chatId: number): Promise<TrackedUser | null> {
+    return this.findById(chatId);
+  }
+
+  /** Actualiza el historial de stickers enviados a un usuario */
+  async updateStickerHistory(chatId: number, stickerIds: string): Promise<void> {
+    await this.userRepo.update({ id: chatId }, { lastStickerIds: stickerIds });
+  }
+
   // ─── Daily Progress ────────────────────────────────────────────
 
   /** Registrar avance del día. Retorna false si ya había registrado hoy. */

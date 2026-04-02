@@ -423,19 +423,34 @@ export class BotService implements OnModuleInit {
   /** Envía un recordatorio con texto (de Gemini) + media aleatorio */
   async sendReminderTo(chatId: number, text: string) {
     const name = this.displayName(chatId);
+    
+    // Obtener usuario para ver historial de stickers
+    const user = await this.userService.getUserById(chatId);
+    const lastStickers = user?.lastStickerIds 
+      ? user.lastStickerIds.split(',').filter(s => s) 
+      : [];
+    
     // Juntar todas las opciones disponibles: archivos + stickers
     const options = this.collectMediaOptions('reminders', REMINDER_STICKERS);
 
     if (options.length > 0) {
-      const pick = this.randomItem(options);
+      const pick = this.selectNonRepeatingSticker(options, lastStickers);
       try {
         if (pick.type === 'sticker') {
           this.send(chatId, text);
           await this.bot.sendSticker(chatId, pick.value);
+          
+          // Actualizar historial de stickers (últimos 5)
+          await this.updateStickerHistory(chatId, pick.value, lastStickers);
         } else {
           await this.sendMediaFile(chatId, pick.value, text);
         }
-        this.send(this.adminChatId, `📤 Recordatorio enviado a *${name}*`);
+        
+        // Notificar al admin con el contenido completo
+        this.send(
+          this.adminChatId, 
+          `📤 Enviado a *${name}*:\n\n${text}`
+        );
         return;
       } catch (err) {
         this.logger.warn(`No se pudo enviar media: ${err}`);
@@ -444,7 +459,10 @@ export class BotService implements OnModuleInit {
 
     // Fallback: solo texto
     this.send(chatId, text);
-    this.send(this.adminChatId, `📤 Recordatorio enviado a *${name}*`);
+    this.send(
+      this.adminChatId, 
+      `📤 Enviado a *${name}*:\n\n${text}`
+    );
   }
 
   /** Envía sticker o archivo media aleatorio de una categoría */
@@ -545,5 +563,44 @@ export class BotService implements OnModuleInit {
 
   private randomItem<T>(arr: T[]): T {
     return arr[Math.floor(Math.random() * arr.length)];
+  }
+
+  /** Selecciona un sticker/media que NO esté en los últimos 5 enviados */
+  private selectNonRepeatingSticker(
+    options: Array<{ type: 'file' | 'sticker'; value: string }>,
+    lastStickers: string[],
+  ): { type: 'file' | 'sticker'; value: string } {
+    // Filtrar opciones que no estén en el historial
+    const available = options.filter(
+      opt => !lastStickers.includes(opt.value)
+    );
+    
+    // Si hay opciones disponibles, usar una de ellas
+    if (available.length > 0) {
+      return this.randomItem(available);
+    }
+    
+    // Si todos fueron usados, resetear y elegir cualquiera
+    return this.randomItem(options);
+  }
+
+  /** Actualiza el historial de stickers enviados (últimos 5) */
+  private async updateStickerHistory(
+    chatId: number,
+    stickerId: string,
+    currentHistory: string[],
+  ): Promise<void> {
+    try {
+      // Agregar el nuevo sticker al inicio
+      const updated = [stickerId, ...currentHistory];
+      
+      // Mantener solo los últimos 5
+      const last5 = updated.slice(0, 5);
+      
+      // Guardar en la BD como string separado por comas
+      await this.userService.updateStickerHistory(chatId, last5.join(','));
+    } catch (err) {
+      this.logger.warn(`No se pudo actualizar historial de stickers: ${err}`);
+    }
   }
 }
