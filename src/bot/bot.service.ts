@@ -29,6 +29,13 @@ const REMINDER_STICKERS: string[] = [
 /** Sticker IDs para celebraciones */
 const CELEBRATION_STICKERS: string[] = [];
 
+/** Sticker IDs para piropos/románticos */
+const PIROPO_STICKERS: string[] = [
+  "CAACAgIAAxkBAAEGoiNnhoVPGhd7AAEBZWzDEFCT3OWcQY0AAkQAA3rJNBO6XGbW4T_KoTYE",
+  "CAACAgIAAxkBAAEGoidnhoWLr7o6tlNDPiGvt4XVVlGBhQACSQADeskwE_e6GrJkAAHTejYE",
+  "CAACAgIAAxkBAAEGoilnhoXOmHaNcE3aLPiHJNAOSUl-cgACPgADeskwE2x9AAGMOEZEOjYE",
+];
+
 /** Alias de nombres para enmascarar chat IDs al admin */
 const USER_ALIASES: Record<number, string> = {
   1861897985: 'Bibiana',
@@ -82,6 +89,7 @@ export class BotService implements OnModuleInit {
     );
     this.bot.onText(/\/lista/, (msg) => this.handleLista(msg));
     this.bot.onText(/\/estado/, (msg) => this.handleEstado(msg));
+    this.bot.onText(/\/piropo/, (msg) => this.handlePiropo(msg));
     this.bot.onText(/\/recordar\s+(.+)/, (msg, match) =>
       this.handleRecordar(msg, match),
     );
@@ -121,6 +129,7 @@ export class BotService implements OnModuleInit {
         "❌ `/quitar <chatId>` — Quitar usuario",
         "📋 `/lista` — Ver usuarios en seguimiento",
         "📊 `/estado` — Ver quién avanzó hoy",
+        "💕 `/piropo` — Enviar piropo a todos los usuarios",
         "🔔 `/recordar <chatId>` — Recordatorio manual",
         "🧪 `/probar` — Enviar recordatorio de prueba a todos",
         "🎨 Envía un sticker para obtener su ID",
@@ -267,6 +276,46 @@ export class BotService implements OnModuleInit {
     this.send(chatId, text);
   }
 
+  // ─── /piropo ───────────────────────────────────────────────────
+
+  private async handlePiropo(msg: TelegramBot.Message) {
+    const chatId = msg.chat.id;
+    if (!this.isAdmin(chatId)) return;
+
+    const users = await this.userService.getAllUsers();
+    if (users.length === 0) {
+      this.send(chatId, "📋 No hay usuarios en la lista.");
+      return;
+    }
+
+    this.send(
+      chatId,
+      `💕 Enviando piropo a ${users.length} usuario(s)...`,
+    );
+
+    for (const user of users) {
+      try {
+        // Generar piropo usando Gemini
+        const piropo = await this.geminiService.generateReminder('lunch');
+        
+        // Enviar el piropo
+        await this.sendReminderTo(user.id, piropo);
+        
+        // Enviar un sticker romántico
+        if (PIROPO_STICKERS.length > 0) {
+          const stickerId = this.randomItem(PIROPO_STICKERS);
+          await this.bot.sendSticker(user.id, stickerId);
+        }
+        
+        this.logger.log(`Piropo enviado a ${user.id}`);
+      } catch (err) {
+        this.logger.warn(`No se pudo enviar piropo a ${user.id}: ${err}`);
+      }
+    }
+
+    this.send(chatId, `✅ Piropos enviados a todos los usuarios.`);
+  }
+
   // ─── /recordar <chatId> ────────────────────────────────────────
 
   private async handleRecordar(
@@ -313,7 +362,7 @@ export class BotService implements OnModuleInit {
 
     for (const user of pending) {
       try {
-        const message = await this.geminiService.generateReminder("afternoon");
+        const message = await this.geminiService.generateReminder("evening-730");
         await this.sendReminderTo(user.id, message);
       } catch (err) {
         this.logger.warn(`No se pudo enviar prueba a ${user.id}: ${err}`);

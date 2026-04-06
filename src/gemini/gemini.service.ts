@@ -4,39 +4,40 @@ import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
 /** Mensajes de fallback si Gemini no está disponible */
 const FALLBACK_MORNING = [
-  '☀️ ¡Buenos días, Bibi! ¿Llegaste tempranito a la oficina hoy?',
-  '🌅 ¡Arriba esa actitud! ¿Ya estás en la ofici o todavía en la cama? jaja',
-  '☕ Buenos días, ¿llegó la más juiciosa temprano hoy?',
-  '🌤️ ¡Madrugó la pollita! ¿O todavía está dormida? jaja',
-  '☀️ ¡Buenos días! Reporte de llegada a la oficina, soldado.',
-  '🌞 Ey Bibi, ¿ya estás en modo productivo o todavía en modo sábana?',
+  '☀️ Buenos días mi amor ¿Ya estás en la ofici o todavía soñando conmigo? jaja',
+  '🌅 ¡Arriba mi vida! Espero que hoy llegues tempranito a trabajar ☕',
+  '💕 Buenos días preciosa ¿La más linda ya llegó a la oficina?',
+  '🌤️ Buenos días mi cielo ¿Madrugaste o te quedaste en la cama extrañándome? jaja',
+  '☀️ ¡Buenos días hermosa! Reporte de llegada pues, a ver si fuiste juiciosa',
+  '🌞 Mi amor, buenos días ¿Ya estás siendo productiva o pensando en mí? jaja',
 ];
 
-const FALLBACK_MORNING_REMINDER = [
-  '🚨 ALERTA ROJA Bibi: Ya son las 10 AM de Semana Santa y ese Revit sigue pendiente. NO PUEDE SER, a camellar YA jaja',
-  '⚠️ CÓDIGO ROJO: 10 AM y PERDIENDO Semana Santa por ese curso. BASTA YA de procrastinar, dale ahora jaja',
-  '💥 Bibi EMERGENCIA: Media mañana de Semana Santa y NADA de avance. Se te va TODO el tiempo, hágale YA jaja',
+const FALLBACK_LUNCH = [
+  '😍 Hola preciosa, ve a almorzar ¿sí? Que necesitas energías y además te ves divina cuando comes jaja 🍽️',
+  '💕 Mi vida linda, hora de almorzar. Ve y come rico, que te lo mereces todo 💖',
+  '🌹 Belleza, ya es hora de que vayas a comer. No me hagas ir hasta allá a llevarte jaja 🍴',
+  '😘 Mi reina hermosa, ve a almorzar. Necesitas estar bien alimentada para brillar como siempre ✨',
 ];
 
-const FALLBACK_AFTERNOON = [
-  '🔴 CRISIS TOTAL Bibi: 1 PM de Semana Santa y ese Revit sigue ahí. INACEPTABLE, póngase las pilas AHORA jaja',
-  '⚠️ EMERGENCIA: Ya es 1 PM y DESPERDICIANDO Semana Santa. Se acabó la paciencia, Revit AHORA jaja',
-  '💀 Bibi, recordatorio CRÍTICO: Ya es tarde y perdiendo vacaciones por ese curso. BASTA YA, hágale pues jaja',
+const FALLBACK_EVENING_730 = [
+  '🚨 Bibi, son las 7:30 PM y ese Revit sigue ahí. DALE, que ya es hora de terminar eso jaja',
+  '⚠️ Mi vida, 7:30 PM. Ándale con ese curso que se te va la noche jaja',
+  '💥 Bibi, EMERGENCIA nocturna: 7:30 PM y pendiente. AHORA sí, a camellar jaja',
 ];
 
-const FALLBACK_LATE_AFTERNOON = [
-  '🚨 ÚLTIMO AVISO: 4 PM, el día casi se acabó y OTRO día de Semana Santa perdido. AHORA O NUNCA jaja',
-  '💥 CÓDIGO ROJO: Son las 4 PM y ese Revit sigue pendiente. Si no avanzás AHORA, perdiste TODO el día jaja',
-  '⏰ CRISIS FINAL: 4 PM de Semana Santa yéndose. Última oportunidad del día, DALE YA jaja',
+const FALLBACK_EVENING_830 = [
+  '🔴 8:30 PM Bibi, ya casi son las 9. ESE REVIT YA, por favor jaja',
+  '⚠️ Mi amor, 8:30 PM. No me hagas seguir molestando, dale al curso jaja',
+  '💀 8:30 PM y nada. Bibi, BASTA de procrastinar, necesito verte avanzar jaja',
 ];
 
-const FALLBACK_EVENING = [
-  '🔴 EMERGENCIA ABSOLUTA: 7 PM, se fue OTRO día COMPLETO de Semana Santa por ese Revit. DALE YA jaja',
-  '⚠️ DEFCON 1: Son las 7 PM, PERDISTE el día entero. ¿Querés que Semana Santa se acabe con ese curso pendiente? jaja',
-  '💀 ÚLTIMA LLAMADA: 7 PM, día perdido. Si NO avanzás ahora, mañana es lo mismo. BASTA YA jaja',
+const FALLBACK_EVENING_930 = [
+  '🚨 CÓDIGO ROJO: 9:30 PM, se acaba el día. AHORA O NUNCA con ese Revit jaja',
+  '⚠️ 9:30 PM Bibi. ÚLTIMA oportunidad del día, dale YA jaja',
+  '💥 CRISIS: 9:30 PM. Por favor amor, no dejes que el día termine sin nada jaja',
 ];
 
-type TimeOfDay = 'morning' | 'morning-reminder' | 'afternoon' | 'late-afternoon' | 'evening';
+type TimeOfDay = 'morning' | 'lunch' | 'evening-730' | 'evening-830' | 'evening-930';
 
 @Injectable()
 export class GeminiService implements OnModuleInit {
@@ -73,51 +74,57 @@ export class GeminiService implements OnModuleInit {
       return this.generateMorningMessage();
     }
 
-    // Definir contexto según la hora del día
+    // Prompt para el almuerzo (piropo + recordatorio de comer)
+    if (timeOfDay === 'lunch') {
+      return this.generateLunchMessage();
+    }
+
+    // Obtener la fecha actual
+    const today = new Date();
+    const dayName = today.toLocaleDateString('es-CO', { weekday: 'long' });
+    const dateStr = today.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+    const currentDate = `${dayName}, ${dateStr}`;
+
+    // Definir contexto según la hora del día (recordatorios nocturnos)
     let timeLabel = '';
     let intensity = '';
     let timeContext = '';
 
     switch (timeOfDay) {
-      case 'morning-reminder':
-        timeLabel = 'media mañana (10 AM)';
-        intensity = 'MÁXIMA PRESIÓN - tono de comandante en crisis';
-        timeContext = 'ALERTA ROJA: ESTAMOS EN SEMANA SANTA y ese curso todavía no está terminado. Cada minuto que pasa es tiempo de vacaciones PERDIDO. Esto es INACEPTABLE.';
+      case 'evening-730':
+        timeLabel = 'las 7:30 PM';
+        intensity = 'PRESIÓN MEDIA - tono firme pero cariñoso';
+        timeContext = `Son las 7:30 PM del ${currentDate}. Aún hay tiempo para avanzar en el curso. Es momento de empezar antes de que sea muy tarde.`;
         break;
-      case 'afternoon':
-        timeLabel = 'después del almuerzo (1 PM)';
-        intensity = 'NIVEL DE EMERGENCIA - presión absoluta y desesperada';
-        timeContext = 'CRISIS TOTAL: Ya es tarde, estamos EN PLENA SEMANA SANTA y el curso sigue pendiente. Se está DESPERDICIANDO Semana Santa por esa procrastinación. BASTA YA.';
+      case 'evening-830':
+        timeLabel = 'las 8:30 PM';
+        intensity = 'PRESIÓN ALTA - tono más urgente';
+        timeContext = `Ya son las 8:30 PM del ${currentDate}. El tiempo se está acabando. Necesita arrancar YA con ese Revit.`;
         break;
-      case 'late-afternoon':
-        timeLabel = 'media tarde (4 PM)';
-        intensity = 'CÓDIGO ROJO - última oportunidad del día, tono DESESPERADO';
-        timeContext = 'ÚLTIMO AVISO: El día casi terminó, estamos EN SEMANA SANTA y ese Revit sigue ahí. Si no avanza AHORA, perdió TODO el día. Esto es CRÍTICO.';
-        break;
-      case 'evening':
-        timeLabel = 'la noche (7 PM)';
-        intensity = 'DEFCON 1 - Presión MÁXIMA ABSOLUTA, situación desesperada';
-        timeContext = 'EMERGENCIA FINAL: ÚLTIMO MOMENTO DEL DÍA. Estamos EN SEMANA SANTA y se va OTRO día completo sin terminar. Si no actúa YA, perdió 24 horas de vacaciones.';
+      case 'evening-930':
+        timeLabel = 'las 9:30 PM';
+        intensity = 'MÁXIMA PRESIÓN - tono desesperado pero final';
+        timeContext = `CÓDIGO ROJO: 9:30 PM del ${currentDate}. ÚLTIMA oportunidad del día. Si no empieza AHORA, otro día se va completo.`;
         break;
     }
 
       const prompt = [
-        `Actúa como un paisa EXTREMADAMENTE molestón y presionante. Genera un mensaje de MÁXIMA PRESIÓN para Bibiana (decile "Bibi") sobre su curso de Autodesk Revit.`,
-        `CONTEXTO CRÍTICO ABSOLUTO: YA ESTAMOS EN SEMANA SANTA y ella TODAVÍA no ha terminado ese curso. Se está PERDIENDO días enteros de vacaciones por esa procrastinación INACEPTABLE. ${timeContext} Esto es una EMERGENCIA.`,
-        `El tono: ${intensity}. NO es banter, es PRESIÓN REAL. Como un comandante militar EN PLENA CRISIS pero que la quiere. Usa MAYÚSCULAS frecuentemente. Expresiones extremas: "BASTA YA", "NO PUEDE SER", "INACEPTABLE", "EMERGENCIA", "CÓDIGO ROJO", "ALERTA MÁXIMA", "última oportunidad", "se acabó la paciencia", "perdiendo TODO", "CRISIS TOTAL" y siempre "jaja" al final para que no sea agresivo.`,
-        `IMPORTANTE: El enfoque debe ser: "se te está YENDO Semana Santa completa", "PERDISTE otro día", "cada segundo cuenta", "vacaciones DESPERDICIADAS", "ya NO hay tiempo", "AHORA O NUNCA".`,
-        `Ejemplos del estilo ULTRA DURO:`,
-        `- "Bibi, ALERTA ROJA: son las 10 AM de Semana Santa y ese Revit sigue pendiente. NO PUEDE SER, a camellar YA jaja."`,
-        `- "CÓDIGO ROJO Bibi: 1 PM de Semana Santa y NADA de avance. Se te va TODO el tiempo de vacaciones, BASTA YA jaja."`,
-        `- "EMERGENCIA FINAL: 7 PM, se fue OTRO día COMPLETO de Semana Santa. ¿Querés perder toda la semana? Dale YA jaja."`,
+        `Actúa como un paisa molestón pero cariñoso. Genera un mensaje recordándole a Bibiana (decile "Bibi") sobre su curso de Autodesk Revit.`,
+        `CONTEXTO: Hoy es ${currentDate} y ella todavía no ha avanzado en su curso hoy. ${timeContext}`,
+        `El tono: ${intensity}. Es presión REAL pero con cariño. Usa MAYÚSCULAS estratégicamente. Expresiones: "DALE YA", "No puede ser", "BASTA de procrastinar", "AHORA sí", "Última oportunidad" y siempre "jaja" al final para suavizar.`,
+        `IMPORTANTE: El enfoque debe ser: "Ya es ${timeLabel}, ${dayName}, hora de avanzar", "El día se está acabando", "Dale aunque sea un ratito", "AHORA O NUNCA".`,
+        `Ejemplos del estilo para la noche:`,
+        `- "Bibi amor, ya son las 7:30 PM del ${dayName}. Dale aunque sea una horita a ese Revit, no dejes que el día se vaya sin nada jaja."`,
+        `- "Mi vida, 8:30 PM y ese curso sigue ahí. DALE YA que se te va la noche completa jaja."`,
+        `- "CÓDIGO ROJO Bibi: 9:30 PM. AHORA O NUNCA mi amor, dale media horita antes de dormir jaja."`,
         `Es ${timeLabel}. El mensaje debe:`,
-        `- Ser EXTREMADAMENTE presionante y casi agresivo (pero con "jaja" al final)`,
-        `- Enfatizar que se está PERDIENDO Semana Santa COMPLETA`,
-        `- Ser contundente, directo, SIN sutilezas`,
-        `- Usar 2-3 emojis de máxima urgencia (🚨, 🔴, ⚠️, 💥, ⏰, 💀, 🔥)`,
-        `- Máximo 2 oraciones MUY cortas y DEVASTADORAS`,
-        `- MAYÚSCULAS en palabras clave para énfasis`,
-        `- Terminar SIEMPRE con "jaja" para suavizar`,
+        `- Ser presionante pero con cariño (usar "mi vida", "mi amor" ocasionalmente)`,
+        `- Mencionar que hoy es ${dayName} y la hora exacta`,
+        `- Ser directo pero no agresivo`,
+        `- Usar 1-2 emojis de urgencia (🚨, 🔴, ⚠️, 💥, ⏰)`,
+        `- Máximo 2 oraciones cortas`,
+        `- MAYÚSCULAS en palabras clave`,
+        `- Terminar SIEMPRE con "jaja"`,
         `- No usar comillas ni formato markdown`,
         `Solo responde con el mensaje de texto exacto, nada más.`
       ].join('\n');
@@ -219,19 +226,23 @@ export class GeminiService implements OnModuleInit {
     }
 
     const prompt = [
-      `Actúa como un paisa seguro, relajado y molestón. Genera un mensaje corto de buenos días para Bibiana (puedes decirle Bibi).`,
-      `El objetivo: Preguntarle si ya llegó temprano a la oficina hoy. Es una pregunta cariñosa pero con recocha.`,
-      `El tono: Puro "banter" (recocha) y coqueteo disimulado. Como un novio molestón que la quiere ver juiciosa. Usa expresiones colombianas naturales.`,
-      `Ejemplos del estilo:`,
-      `- "Buenos días ☀️ ¿Ya llegó la más juiciosa a la oficina o todavía está peleando con la almohada? jaja"`,
-      `- "Ey Bibi, reporte de llegada temprana a la ofici, ¿o qué? Ojo pues que la estoy vigilando jaja ☕"`,
+      `Actúa como un novio cariñoso y tierno pero con toque de recocha paisa. Genera un mensaje de buenos días para Bibiana (puedes decirle Bibi, mi amor, mi vida, preciosa).`,
+      `El objetivo: Darle buenos días de manera tierna y dulce, y preguntarle si ya llegó temprano a la oficina. Es pregunta cariñosa con un toque juguetón.`,
+      `El tono: MUY tierno y amoroso pero divertido. Como un novio enamorado que la quiere ver juiciosa. Puedes usar expresiones de cariño genuinas mezcladas con humor colombiano suave.`,
+      `Ejemplos del estilo tierno pero chistoso:`,
+      `- "Buenos días mi amor hermosa ☀️ ¿Ya llegó la más bonita de la oficina o todavía está soñando? jaja 💕"`,
+      `- "Mi vida preciosa, buenos días ¿Ya estás en la ofici siendo la más linda del lugar? ☕😘"`,
+      `- "Buenos días mi cielo bello ¿Llegaste tempranito o te quedaste extrañándome en la cama? jaja 💖"`,
       `El mensaje debe:`,
+      `- Ser TIERNO y AMOROSO primero, chistoso segundo`,
+      `- Usar expresiones de cariño genuinas (mi amor, mi vida, preciosa, hermosa, mi cielo)`,
+      `- Incluir 2 emojis cariñosos (💕, ☀️, ☕, 😘, 💖, 🌅, ✨)`,
+      `- Preguntar sobre si llegó temprano a la oficina de forma dulce`,
       `- Ser diferente cada vez (creativo, variado)`,
-      `- Usar 1 o 2 emojis relevantes máximo (☀️, ☕, 🌅, etc.)`,
-      `- Tener máximo 2 oraciones cortas`,
-      `- Ser divertido, cariñoso y motivador`,
-      `- No usar comillas, saludos formales ni formato markdown`,
-      `- Nada en tono sexual`,
+      `- Máximo 2 oraciones cortas`,
+      `- Terminar con "jaja" o emoji cariñoso`,
+      `- No usar comillas, saludos fríos ni formato markdown`,
+      `- Nada en tono sexual, solo amor puro y recocha`,
       `Solo responde con el mensaje de texto exacto, nada más.`,
     ].join('\n');
 
@@ -245,6 +256,46 @@ export class GeminiService implements OnModuleInit {
     } catch (err) {
       this.logger.warn(`Error de Gemini (morning): ${err}. Usando fallback.`);
       return this.getFallback('morning');
+    }
+  }
+
+  /** Genera un mensaje de piropo y recordatorio de almuerzo */
+  private async generateLunchMessage(): Promise<string> {
+    if (!this.model) {
+      return this.getFallback('lunch');
+    }
+
+    const prompt = [
+      `Actúa como un novio enamorado y cariñoso. Genera un mensaje para Bibiana (puedes decirle Bibi, mi amor, preciosa, hermosa).`,
+      `El objetivo: Hacerle un piropo genuino y dulce, Y recordarle que debe ir a almorzar. Las dos cosas son importantes.`,
+      `El tono: MUY romántico y tierno. Como un novio que la adora y se preocupa por que coma bien. Debe sentirse especial y querida.`,
+      `Ejemplos del estilo:`,
+      `- "Mi amor hermosa, ve a almorzar ¿sí? Te ves preciosa siempre pero necesitas comer rico para tener energía 💕🍽️"`,
+      `- "Preciosa, hora de almorzar. Sos demasiado linda como para andar sin comer bien, dale mi vida 😍✨"`,
+      `- "Mi vida bella, anda a almorzar que te lo mereces todo. Además cuando comes se te ve esa sonrisa que me mata 🌹💖"`,
+      `El mensaje debe:`,
+      `- Empezar con un piropo genuino y hermoso (sobre su belleza, su forma de ser, algo específico)`,
+      `- Luego recordarle que vaya a almorzar de manera cariñosa`,
+      `- Usar expresiones de cariño (mi amor, preciosa, hermosa, mi vida, bella)`,
+      `- Incluir 2 emojis románticos/tiernos (😍, 💕, 🌹, 💖, ✨, 🍽️, 🍴)`,
+      `- Ser diferente cada vez (creatividad en los piropos)`,
+      `- Máximo 2 oraciones`,
+      `- Sentirse genuino y amoroso, no forzado`,
+      `- No usar comillas ni formato markdown`,
+      `- Nada sexual, solo amor puro y admiración`,
+      `Solo responde con el mensaje de texto exacto, nada más.`,
+    ].join('\n');
+
+    try {
+      const result = await this.model.generateContent(prompt);
+      const text = result.response.text()?.trim();
+      if (text && text.length > 5 && text.length < 500) {
+        return text;
+      }
+      return this.getFallback('lunch');
+    } catch (err) {
+      this.logger.warn(`Error de Gemini (lunch): ${err}. Usando fallback.`);
+      return this.getFallback('lunch');
     }
   }
 
@@ -264,10 +315,10 @@ export class GeminiService implements OnModuleInit {
   private getFallback(timeOfDay: TimeOfDay): string {
     const pools: Record<TimeOfDay, string[]> = {
       morning: FALLBACK_MORNING,
-      'morning-reminder': FALLBACK_MORNING_REMINDER,
-      afternoon: FALLBACK_AFTERNOON,
-      'late-afternoon': FALLBACK_LATE_AFTERNOON,
-      evening: FALLBACK_EVENING,
+      lunch: FALLBACK_LUNCH,
+      'evening-730': FALLBACK_EVENING_730,
+      'evening-830': FALLBACK_EVENING_830,
+      'evening-930': FALLBACK_EVENING_930,
     };
     const pool = pools[timeOfDay];
     return pool[Math.floor(Math.random() * pool.length)];
