@@ -29,13 +29,6 @@ const REMINDER_STICKERS: string[] = [
 /** Sticker IDs para celebraciones */
 const CELEBRATION_STICKERS: string[] = [];
 
-/** Sticker IDs para piropos/románticos */
-const PIROPO_STICKERS: string[] = [
-  "CAACAgIAAxkBAAEGoiNnhoVPGhd7AAEBZWzDEFCT3OWcQY0AAkQAA3rJNBO6XGbW4T_KoTYE",
-  "CAACAgIAAxkBAAEGoidnhoWLr7o6tlNDPiGvt4XVVlGBhQACSQADeskwE_e6GrJkAAHTejYE",
-  "CAACAgIAAxkBAAEGoilnhoXOmHaNcE3aLPiHJNAOSUl-cgACPgADeskwE2x9AAGMOEZEOjYE",
-];
-
 /** Alias de nombres para enmascarar chat IDs al admin */
 const USER_ALIASES: Record<number, string> = {
   1861897985: 'Bibiana',
@@ -129,7 +122,7 @@ export class BotService implements OnModuleInit {
         "❌ `/quitar <chatId>` — Quitar usuario",
         "📋 `/lista` — Ver usuarios en seguimiento",
         "📊 `/estado` — Ver quién avanzó hoy",
-        "💕 `/piropo` — Enviar piropo a todos los usuarios",
+        "💕 `/piropo` — Enviar mensaje de almuerzo a todos",
         "🔔 `/recordar <chatId>` — Recordatorio manual",
         "🧪 `/probar` — Enviar recordatorio de prueba a todos",
         "🎨 Envía un sticker para obtener su ID",
@@ -290,30 +283,24 @@ export class BotService implements OnModuleInit {
 
     this.send(
       chatId,
-      `💕 Enviando piropo a ${users.length} usuario(s)...`,
+      `💬 Enviando mensaje de almuerzo a ${users.length} usuario(s)...`,
     );
 
     for (const user of users) {
       try {
-        // Generar piropo usando Gemini
-        const piropo = await this.geminiService.generateReminder('lunch');
+        // Generar mensaje de almuerzo usando Gemini
+        const mensaje = await this.geminiService.generateReminder('lunch');
         
-        // Enviar el piropo
-        await this.sendReminderTo(user.id, piropo);
+        // Enviar el mensaje
+        await this.sendReminderTo(user.id, mensaje);
         
-        // Enviar un sticker romántico
-        if (PIROPO_STICKERS.length > 0) {
-          const stickerId = this.randomItem(PIROPO_STICKERS);
-          await this.bot.sendSticker(user.id, stickerId);
-        }
-        
-        this.logger.log(`Piropo enviado a ${user.id}`);
+        this.logger.log(`Mensaje de almuerzo enviado a ${user.id}`);
       } catch (err) {
-        this.logger.warn(`No se pudo enviar piropo a ${user.id}: ${err}`);
+        this.logger.warn(`No se pudo enviar mensaje a ${user.id}: ${err}`);
       }
     }
 
-    this.send(chatId, `✅ Piropos enviados a todos los usuarios.`);
+    this.send(chatId, `✅ Mensajes enviados a todos los usuarios.`);
   }
 
   // ─── /recordar <chatId> ────────────────────────────────────────

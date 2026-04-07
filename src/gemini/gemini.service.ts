@@ -4,19 +4,19 @@ import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
 /** Mensajes de fallback si Gemini no está disponible */
 const FALLBACK_MORNING = [
-  '☀️ Buenos días mi amor ¿Ya estás en la ofici o todavía soñando conmigo? jaja',
-  '🌅 ¡Arriba mi vida! Espero que hoy llegues tempranito a trabajar ☕',
-  '💕 Buenos días preciosa ¿La más linda ya llegó a la oficina?',
-  '🌤️ Buenos días mi cielo ¿Madrugaste o te quedaste en la cama extrañándome? jaja',
-  '☀️ ¡Buenos días hermosa! Reporte de llegada pues, a ver si fuiste juiciosa',
-  '🌞 Mi amor, buenos días ¿Ya estás siendo productiva o pensando en mí? jaja',
+  '☀️ Buenos días Bibi ¿Ya llegaste tempranito o todavía soñando despierta? jaja',
+  '🌅 ¡Arriba perezosa! A ver si hoy madrugaste para variar ☕',
+  '💤 Buenos días dormilona ¿Ya estás en la ofici o sigues en modo zombie?',
+  '🌤️ Ey, reporte de llegada. ¿Fuiste juiciosa hoy o llegaste tarde como siempre? jaja',
+  '☀️ ¡Buenos días! La más impuntual del edificio ya llegó, supongo jaja',
+  '🌞 Bibi, ¿ya en modo trabajo o modo Instagram en la oficina? jaja',
 ];
 
 const FALLBACK_LUNCH = [
-  '😍 Hola preciosa, ve a almorzar ¿sí? Que necesitas energías y además te ves divina cuando comes jaja 🍽️',
-  '💕 Mi vida linda, hora de almorzar. Ve y come rico, que te lo mereces todo 💖',
-  '🌹 Belleza, ya es hora de que vayas a comer. No me hagas ir hasta allá a llevarte jaja 🍴',
-  '😘 Mi reina hermosa, ve a almorzar. Necesitas estar bien alimentada para brillar como siempre ✨',
+  '😋 Ey pollita, ve a almorzar que si no te pones malgenio jaja 🍽️',
+  '🍴 Hora de ir a comer algo rico. Y no me salgas con que solo café, ¿oyó? jaja',
+  '🌮 Bibi, almuerzo YA. Que después me decís que te duele la cabeza por no comer jaja',
+  '🍕 Ve a almorzar juiciosa, que te conozco y sos capaz de aguantar hambre hasta las 5 jaja',
 ];
 
 const FALLBACK_EVENING_730 = [
@@ -226,23 +226,22 @@ export class GeminiService implements OnModuleInit {
     }
 
     const prompt = [
-      `Actúa como un novio cariñoso y tierno pero con toque de recocha paisa. Genera un mensaje de buenos días para Bibiana (puedes decirle Bibi, mi amor, mi vida, preciosa).`,
-      `El objetivo: Darle buenos días de manera tierna y dulce, y preguntarle si ya llegó temprano a la oficina. Es pregunta cariñosa con un toque juguetón.`,
-      `El tono: MUY tierno y amoroso pero divertido. Como un novio enamorado que la quiere ver juiciosa. Puedes usar expresiones de cariño genuinas mezcladas con humor colombiano suave.`,
-      `Ejemplos del estilo tierno pero chistoso:`,
-      `- "Buenos días mi amor hermosa ☀️ ¿Ya llegó la más bonita de la oficina o todavía está soñando? jaja 💕"`,
-      `- "Mi vida preciosa, buenos días ¿Ya estás en la ofici siendo la más linda del lugar? ☕😘"`,
-      `- "Buenos días mi cielo bello ¿Llegaste tempranito o te quedaste extrañándome en la cama? jaja 💖"`,
+      `Actúa como un paisa seguro, relajado y molestón (puro banter). Genera un mensaje de buenos días para Bibiana (puedes decirle Bibi).`,
+      `El objetivo: Darle buenos días y preguntarle si llegó temprano a la oficina, pero con RECOCHA. Que se note que la estás vigilando de forma chistosa.`,
+      `El tono: BANTER puro (recocha colombiana). Como un amigo molestón que la vacila. Nada romántico ni empalagoso. Directo, chistoso, con personalidad. Puedes implicar que suele llegar tarde o quedarse dormida.`,
+      `Ejemplos del estilo banter:`,
+      `- "Buenos días Bibi ☀️ ¿Hoy sí llegaste temprano o como siempre de últimas? jaja"`,
+      `- "Ey perezosa, ¿ya estás en la ofici o todavía peleando con la almohada? ☕ jaja"`,
+      `- "Buenos días pollita ¿La impuntual oficial llegó a tiempo hoy? Ojo que te estoy vigilando jaja"`,
       `El mensaje debe:`,
-      `- Ser TIERNO y AMOROSO primero, chistoso segundo`,
-      `- Usar expresiones de cariño genuinas (mi amor, mi vida, preciosa, hermosa, mi cielo)`,
-      `- Incluir 2 emojis cariñosos (💕, ☀️, ☕, 😘, 💖, 🌅, ✨)`,
-      `- Preguntar sobre si llegó temprano a la oficina de forma dulce`,
+      `- Tener PERSONALIDAD y recocha, nada cursi`,
       `- Ser diferente cada vez (creativo, variado)`,
+      `- Usar 1 emoji relevante máximo (☀️, ☕, 🌅, 💤)`,
       `- Máximo 2 oraciones cortas`,
-      `- Terminar con "jaja" o emoji cariñoso`,
-      `- No usar comillas, saludos fríos ni formato markdown`,
-      `- Nada en tono sexual, solo amor puro y recocha`,
+      `- Preguntar sobre si llegó temprano con tono burlón/molestón`,
+      `- Terminar con "jaja" siempre`,
+      `- No usar comillas ni formato markdown`,
+      `- CERO romanticismo, puro vacile`,
       `Solo responde con el mensaje de texto exacto, nada más.`,
     ].join('\n');
 
@@ -266,23 +265,24 @@ export class GeminiService implements OnModuleInit {
     }
 
     const prompt = [
-      `Actúa como un novio enamorado y cariñoso. Genera un mensaje para Bibiana (puedes decirle Bibi, mi amor, preciosa, hermosa).`,
-      `El objetivo: Hacerle un piropo genuino y dulce, Y recordarle que debe ir a almorzar. Las dos cosas son importantes.`,
-      `El tono: MUY romántico y tierno. Como un novio que la adora y se preocupa por que coma bien. Debe sentirse especial y querida.`,
+      `Actúa como un paisa molestón con banter. Genera un mensaje para Bibiana (puedes decirle Bibi, pollita).`,
+      `El objetivo: Recordarle que vaya a almorzar, pero con RECOCHA. Como diciéndole que si no come se pone malgenio o empieza a quejarse.`,
+      `El tono: BANTER puro, nada romántico. Como un amigo que la vacila porque sabe que se le olvida comer o aguanta hambre. Directo, chistoso, con personalidad paisa.`,
       `Ejemplos del estilo:`,
-      `- "Mi amor hermosa, ve a almorzar ¿sí? Te ves preciosa siempre pero necesitas comer rico para tener energía 💕🍽️"`,
-      `- "Preciosa, hora de almorzar. Sos demasiado linda como para andar sin comer bien, dale mi vida 😍✨"`,
-      `- "Mi vida bella, anda a almorzar que te lo mereces todo. Además cuando comes se te ve esa sonrisa que me mata 🌹💖"`,
+      `- "Ey Bibi, ve a almorzar que si no, te ponés insoportable jaja 🍽️"`,
+      `- "Hora de comer algo Bibi. Y no me salgas con que solo café, eso no cuenta jaja 🍴"`,
+      `- "Pollita, almuerzo YA. Que te conozco y sos capaz de aguantar hambre hasta la noche jaja 😋"`,
+      `- "Ve a almorzar juiciosa, que después no quiero quejas de dolor de cabeza jaja 🌮"`,
       `El mensaje debe:`,
-      `- Empezar con un piropo genuino y hermoso (sobre su belleza, su forma de ser, algo específico)`,
-      `- Luego recordarle que vaya a almorzar de manera cariñosa`,
-      `- Usar expresiones de cariño (mi amor, preciosa, hermosa, mi vida, bella)`,
-      `- Incluir 2 emojis románticos/tiernos (😍, 💕, 🌹, 💖, ✨, 🍽️, 🍴)`,
-      `- Ser diferente cada vez (creatividad en los piropos)`,
+      `- Tener RECOCHA y banter, nada cursi ni romántico`,
+      `- Implicar que se le olvida comer o aguanta hambre`,
+      `- Usar expresiones paisas casuales (pollita, ey, juiciosa, ojo con...)`,
+      `- Incluir 1 emoji de comida (😋, 🍽️, 🍴, 🌮, 🍕)`,
+      `- Ser diferente cada vez (creatividad)`,
       `- Máximo 2 oraciones`,
-      `- Sentirse genuino y amoroso, no forzado`,
+      `- Terminar con "jaja"`,
       `- No usar comillas ni formato markdown`,
-      `- Nada sexual, solo amor puro y admiración`,
+      `- CERO romanticismo, puro vacile amistoso`,
       `Solo responde con el mensaje de texto exacto, nada más.`,
     ].join('\n');
 
