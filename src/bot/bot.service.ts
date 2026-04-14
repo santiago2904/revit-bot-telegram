@@ -90,6 +90,7 @@ export class BotService implements OnModuleInit {
     this.bot.onText(/\/resetdia(?:\s+(.+))?/, (msg, match) =>
       this.handleResetDia(msg, match),
     );
+    this.bot.onText(/\/resetstickers/, (msg) => this.handleResetStickers(msg));
 
     // Capturar sticker IDs — reenvía un sticker al bot y te da el ID
     this.bot.on("sticker", (msg) => this.handleStickerCapture(msg));
@@ -125,6 +126,7 @@ export class BotService implements OnModuleInit {
         "💕 `/piropo` — Enviar mensaje de almuerzo a todos",
         "🔔 `/recordar <chatId>` — Recordatorio manual",
         "🧪 `/probar` — Enviar recordatorio de prueba a todos",
+        "🔄 `/resetstickers` — Resetear historial de stickers",
         "🎨 Envía un sticker para obtener su ID",
         "",
         `Tu chat ID: \`${chatId}\``,
@@ -391,6 +393,24 @@ export class BotService implements OnModuleInit {
     }
   }
 
+  // ─── /resetstickers — limpiar historial de stickers ────────────
+
+  private async handleResetStickers(msg: TelegramBot.Message) {
+    const chatId = msg.chat.id;
+    if (!this.isAdmin(chatId)) return;
+
+    // Resetear historial de stickers de todos los usuarios
+    const users = await this.userService.getAllUsers();
+    let count = 0;
+    
+    for (const user of users) {
+      await this.userService.updateStickerHistory(user.id, '');
+      count++;
+    }
+
+    this.send(chatId, `🔄 Historial de stickers reseteado para *${count}* usuario(s).`);
+  }
+
   // ─── Detección de lenguaje natural ─────────────────────────────
 
   private async handleUserMessage(msg: TelegramBot.Message) {
@@ -466,11 +486,16 @@ export class BotService implements OnModuleInit {
       ? user.lastStickerIds.split(',').filter(s => s) 
       : [];
     
+    this.logger.log(`[Sticker Debug] Usuario ${name}: ${lastStickers.length} stickers en historial`);
+    this.logger.log(`[Sticker Debug] Historial actual: ${lastStickers.join(', ')}`);
+    
     // Juntar todas las opciones disponibles: archivos + stickers
     const options = this.collectMediaOptions('reminders', REMINDER_STICKERS);
 
     if (options.length > 0) {
       const pick = this.selectNonRepeatingSticker(options, lastStickers);
+      this.logger.log(`[Sticker Debug] Sticker seleccionado: ${pick.value}`);
+      
       try {
         if (pick.type === 'sticker') {
           this.send(chatId, text);
@@ -637,7 +662,7 @@ export class BotService implements OnModuleInit {
       if (currentHistory.length >= REMINDER_STICKERS.length) {
         // Resetear: solo guardar el nuevo
         await this.userService.updateStickerHistory(chatId, stickerId);
-        this.logger.log(`Reseteado historial de stickers para usuario ${chatId}`);
+        this.logger.log(`[Sticker Debug] Reseteado historial de stickers para usuario ${chatId}`);
         return;
       }
       
@@ -645,6 +670,9 @@ export class BotService implements OnModuleInit {
       if (!currentHistory.includes(stickerId)) {
         const updated = [...currentHistory, stickerId];
         await this.userService.updateStickerHistory(chatId, updated.join(','));
+        this.logger.log(`[Sticker Debug] Actualizado historial: ${updated.length} stickers guardados`);
+      } else {
+        this.logger.log(`[Sticker Debug] Sticker ${stickerId} ya estaba en historial`);
       }
     } catch (err) {
       this.logger.warn(`No se pudo actualizar historial de stickers: ${err}`);

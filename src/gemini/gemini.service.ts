@@ -4,19 +4,19 @@ import { GoogleGenerativeAI, GenerativeModel } from '@google/generative-ai';
 
 /** Mensajes de fallback si Gemini no está disponible */
 const FALLBACK_MORNING = [
-  '☀️ Buenos días Bibi ¿Ya llegaste tempranito o todavía soñando despierta? jaja',
-  '🌅 ¡Arriba perezosa! A ver si hoy madrugaste para variar ☕',
-  '💤 Buenos días dormilona ¿Ya estás en la ofici o sigues en modo zombie?',
-  '🌤️ Ey, reporte de llegada. ¿Fuiste juiciosa hoy o llegaste tarde como siempre? jaja',
-  '☀️ ¡Buenos días! La más impuntual del edificio ya llegó, supongo jaja',
-  '🌞 Bibi, ¿ya en modo trabajo o modo Instagram en la oficina? jaja',
+  '☀️ Buenos días mi próxima mujer ¿Ya llegaste tempranito o todavía soñando? jaja',
+  '🌅 ¡Arriba perezosa! Ojo que la que va a ser mi esposa tiene que ser puntual ☕ jaja',
+  '💤 Buenos días futura señora ¿Ya estás en la ofici o sigues en modo zombie?',
+  '🌤️ Ey mi próxima mujer, reporte de llegada. ¿Fuiste juiciosa hoy? jaja',
+  '☀️ ¡Buenos días! A ver si mi futura esposa llegó temprano hoy jaja',
+  '🌞 Bibi, mi próxima mujer ¿ya en modo trabajo o modo Instagram? jaja',
 ];
 
 const FALLBACK_LUNCH = [
-  '😋 Ey pollita, ve a almorzar que si no te pones malgenio jaja 🍽️',
-  '🍴 Hora de ir a comer algo rico. Y no me salgas con que solo café, ¿oyó? jaja',
-  '🌮 Bibi, almuerzo YA. Que después me decís que te duele la cabeza por no comer jaja',
-  '🍕 Ve a almorzar juiciosa, que te conozco y sos capaz de aguantar hambre hasta las 5 jaja',
+  '😋 Ey mi próxima mujer, ve a almorzar que si no te pones malgenio jaja 🍽️',
+  '🍴 Futura señora, hora de ir a comer. Y no me salgas con que solo café jaja',
+  '🌮 Mi próxima esposa, almuerzo YA. Que después te duele la cabeza jaja',
+  '🍕 Ve a almorzar mi futura mujer, que te conozco y sos capaz de aguantar hambre jaja',
 ];
 
 const FALLBACK_EVENING_730 = [
@@ -79,10 +79,18 @@ export class GeminiService implements OnModuleInit {
       return this.generateLunchMessage();
     }
 
-    // Obtener la fecha actual
+    // Obtener la fecha actual en timezone de Colombia
     const today = new Date();
-    const dayName = today.toLocaleDateString('es-CO', { weekday: 'long' });
-    const dateStr = today.toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' });
+    const dayName = today.toLocaleDateString('es-CO', { 
+      weekday: 'long',
+      timeZone: 'America/Bogota'
+    });
+    const dateStr = today.toLocaleDateString('es-CO', { 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric',
+      timeZone: 'America/Bogota'
+    });
     const currentDate = `${dayName}, ${dateStr}`;
 
     // Definir contexto según la hora del día (recordatorios nocturnos)
@@ -109,23 +117,25 @@ export class GeminiService implements OnModuleInit {
     }
 
       const prompt = [
-        `Actúa como un paisa molestón pero cariñoso. Genera un mensaje recordándole a Bibiana (decile "Bibi") sobre su curso de Autodesk Revit.`,
+        `Actúa como un paisa seguro y molestón (puro banter). Genera un mensaje recordándole a Bibiana (puedes decirle Bibi, mi próxima mujer, mi futura esposa) sobre su curso de Autodesk Revit.`,
         `CONTEXTO: Hoy es ${currentDate} y ella todavía no ha avanzado en su curso hoy. ${timeContext}`,
-        `El tono: ${intensity}. Es presión REAL pero con cariño. Usa MAYÚSCULAS estratégicamente. Expresiones: "DALE YA", "No puede ser", "BASTA de procrastinar", "AHORA sí", "Última oportunidad" y siempre "jaja" al final para suavizar.`,
-        `IMPORTANTE: El enfoque debe ser: "Ya es ${timeLabel}, ${dayName}, hora de avanzar", "El día se está acabando", "Dale aunque sea un ratito", "AHORA O NUNCA".`,
-        `Ejemplos del estilo para la noche:`,
-        `- "Bibi amor, ya son las 7:30 PM del ${dayName}. Dale aunque sea una horita a ese Revit, no dejes que el día se vaya sin nada jaja."`,
-        `- "Mi vida, 8:30 PM y ese curso sigue ahí. DALE YA que se te va la noche completa jaja."`,
-        `- "CÓDIGO ROJO Bibi: 9:30 PM. AHORA O NUNCA mi amor, dale media horita antes de dormir jaja."`,
+        `El tono: ${intensity}. BANTER con presión pero con personalidad. Usa MAYÚSCULAS estratégicamente. SIEMPRE incluir referencias como "mi próxima mujer", "mi futura esposa" de forma natural. Expresiones: "DALE YA", "No puede ser", "BASTA de procrastinar", "AHORA sí", "Última oportunidad" y siempre "jaja" al final.`,
+        `IMPORTANTE: El enfoque debe ser: "Ya es ${timeLabel}, ${dayName}, hora de avanzar mi futura esposa", "El día se está acabando", "Dale aunque sea un ratito", "AHORA O NUNCA".`,
+        `Ejemplos del estilo para la noche con referencias:`,
+        `- "Mi próxima mujer, ya son las 7:30 PM del ${dayName}. Dale aunque sea una horita a ese Revit, no dejes que el día se vaya sin nada jaja."`,
+        `- "Futura señora, 8:30 PM y ese curso sigue ahí. DALE YA que se te va la noche completa jaja."`,
+        `- "CÓDIGO ROJO mi futura esposa: 9:30 PM. AHORA O NUNCA, dale media horita antes de dormir jaja."`,
         `Es ${timeLabel}. El mensaje debe:`,
-        `- Ser presionante pero con cariño (usar "mi vida", "mi amor" ocasionalmente)`,
+        `- SIEMPRE incluir "mi próxima mujer", "mi futura esposa", "futura señora" de forma natural`,
+        `- Ser presionante pero con banter (no romántico, directo)`,
         `- Mencionar que hoy es ${dayName} y la hora exacta`,
-        `- Ser directo pero no agresivo`,
+        `- Ser directo con personalidad molestona`,
         `- Usar 1-2 emojis de urgencia (🚨, 🔴, ⚠️, 💥, ⏰)`,
         `- Máximo 2 oraciones cortas`,
         `- MAYÚSCULAS en palabras clave`,
         `- Terminar SIEMPRE con "jaja"`,
         `- No usar comillas ni formato markdown`,
+        `- Combinar urgencia con referencias naturales de "futura esposa"`,
         `Solo responde con el mensaje de texto exacto, nada más.`
       ].join('\n');
   
@@ -226,14 +236,15 @@ export class GeminiService implements OnModuleInit {
     }
 
     const prompt = [
-      `Actúa como un paisa seguro, relajado y molestón (puro banter). Genera un mensaje de buenos días para Bibiana (puedes decirle Bibi).`,
-      `El objetivo: Darle buenos días y preguntarle si llegó temprano a la oficina, pero con RECOCHA. Que se note que la estás vigilando de forma chistosa.`,
-      `El tono: BANTER puro (recocha colombiana). Como un amigo molestón que la vacila. Nada romántico ni empalagoso. Directo, chistoso, con personalidad. Puedes implicar que suele llegar tarde o quedarse dormida.`,
-      `Ejemplos del estilo banter:`,
-      `- "Buenos días Bibi ☀️ ¿Hoy sí llegaste temprano o como siempre de últimas? jaja"`,
-      `- "Ey perezosa, ¿ya estás en la ofici o todavía peleando con la almohada? ☕ jaja"`,
-      `- "Buenos días pollita ¿La impuntual oficial llegó a tiempo hoy? Ojo que te estoy vigilando jaja"`,
+      `Actúa como un paisa seguro, relajado y molestón (puro banter). Genera un mensaje de buenos días para Bibiana (puedes decirle Bibi, mi próxima mujer, mi futura esposa, futura señora).`,
+      `El objetivo: Darle buenos días y preguntarle si llegó temprano a la oficina, pero con RECOCHA. SIEMPRE incluir alguna referencia a que es "mi próxima mujer" o "mi futura esposa" de forma natural y casual.`,
+      `El tono: BANTER puro con referencias sutiles a que será tu esposa. Como un novio seguro que la vacila. Directo, chistoso, con personalidad. Puedes implicar que suele llegar tarde.`,
+      `Ejemplos del estilo banter con "próxima mujer":`,
+      `- "Buenos días mi próxima mujer ☀️ ¿Hoy sí llegaste temprano o como siempre tarde? jaja"`,
+      `- "Ey futura señora, ¿ya estás en la ofici o todavía peleando con la almohada? ☕ jaja"`,
+      `- "Buenos días mi futura esposa ¿La impuntual oficial llegó a tiempo hoy? Ojo pues jaja"`,
       `El mensaje debe:`,
+      `- SIEMPRE incluir "mi próxima mujer", "mi futura esposa", "futura señora" u otra alusión similar`,
       `- Tener PERSONALIDAD y recocha, nada cursi`,
       `- Ser diferente cada vez (creativo, variado)`,
       `- Usar 1 emoji relevante máximo (☀️, ☕, 🌅, 💤)`,
@@ -241,7 +252,7 @@ export class GeminiService implements OnModuleInit {
       `- Preguntar sobre si llegó temprano con tono burlón/molestón`,
       `- Terminar con "jaja" siempre`,
       `- No usar comillas ni formato markdown`,
-      `- CERO romanticismo, puro vacile`,
+      `- Combinar banter con referencias naturales de "futura esposa"`,
       `Solo responde con el mensaje de texto exacto, nada más.`,
     ].join('\n');
 
@@ -265,24 +276,23 @@ export class GeminiService implements OnModuleInit {
     }
 
     const prompt = [
-      `Actúa como un paisa molestón con banter. Genera un mensaje para Bibiana (puedes decirle Bibi, pollita).`,
-      `El objetivo: Recordarle que vaya a almorzar, pero con RECOCHA. Como diciéndole que si no come se pone malgenio o empieza a quejarse.`,
-      `El tono: BANTER puro, nada romántico. Como un amigo que la vacila porque sabe que se le olvida comer o aguanta hambre. Directo, chistoso, con personalidad paisa.`,
-      `Ejemplos del estilo:`,
-      `- "Ey Bibi, ve a almorzar que si no, te ponés insoportable jaja 🍽️"`,
-      `- "Hora de comer algo Bibi. Y no me salgas con que solo café, eso no cuenta jaja 🍴"`,
-      `- "Pollita, almuerzo YA. Que te conozco y sos capaz de aguantar hambre hasta la noche jaja 😋"`,
-      `- "Ve a almorzar juiciosa, que después no quiero quejas de dolor de cabeza jaja 🌮"`,
+      `Actúa como un paisa seguro, relajado y molestón (puro banter). Genera un mensaje de almuerzo para Bibiana (puedes decirle Bibi, mi próxima mujer, mi futura esposa, futura señora).`,
+      `El objetivo: Recordarle ir a almorzar con vacile. SIEMPRE incluir referencia a "mi próxima mujer" o "mi futura esposa".`,
+      `El tono: BANTER puro con alusiones naturales de futura esposa. Como un novio seguro que la vacila. Puedes implicar que se le olvida comer o que se pone malgenio si no come.`,
+      `Ejemplos del estilo banter con referencias:`,
+      `- "Ey mi próxima mujer, ve a almorzar que si no te pones insoportable jaja 🍽️"`,
+      `- "Futura señora, a comer YA. Que te conozco y sos capaz de aguantar hambre jaja"`,
+      `- "Mi futura esposa, andá a almorzar que después te duele la cabeza jaja 🌮"`,
       `El mensaje debe:`,
-      `- Tener RECOCHA y banter, nada cursi ni romántico`,
-      `- Implicar que se le olvida comer o aguanta hambre`,
-      `- Usar expresiones paisas casuales (pollita, ey, juiciosa, ojo con...)`,
-      `- Incluir 1 emoji de comida (😋, 🍽️, 🍴, 🌮, 🍕)`,
-      `- Ser diferente cada vez (creatividad)`,
-      `- Máximo 2 oraciones`,
-      `- Terminar con "jaja"`,
+      `- SIEMPRE incluir "mi próxima mujer", "mi futura esposa", "futura señora" u otra alusión similar`,
+      `- Tener PERSONALIDAD y recocha molestona`,
+      `- Ser diferente cada vez (creativo, variado)`,
+      `- Usar 1 emoji de comida máximo (🍽️, 🍕, 🌮, 🍴, 😋)`,
+      `- Máximo 2 oraciones cortas`,
+      `- Implicar que conoces sus mañas con la comida`,
+      `- Terminar con "jaja" siempre`,
       `- No usar comillas ni formato markdown`,
-      `- CERO romanticismo, puro vacile amistoso`,
+      `- Combinar banter con referencias naturales de "futura esposa"`,
       `Solo responde con el mensaje de texto exacto, nada más.`,
     ].join('\n');
 
